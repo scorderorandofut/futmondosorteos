@@ -27,14 +27,49 @@ CHAMPIONS_CSS = """
         font-family: 'Montserrat', sans-serif;
     }
 
-    /* Títulos principales */
-    h1, h2, h3 {
+    /* Títulos generales */
+    h2, h3 {
         font-family: 'Montserrat', sans-serif;
         text-align: center;
         text-transform: uppercase;
         letter-spacing: 2px;
         color: #ffffff !important;
         text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ==========================================
+       ⚽ NUEVO DISEÑO FLEXBOX PARA EL TÍTULO
+       ================================---------- */
+    .champions-header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 10px 0 20px 0;
+        text-align: center;
+    }
+
+    .title-texts-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .app-title-line {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #ffffff !important;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        line-height: 1.2;
+    }
+
+    .title-ball {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
     }
 
     /* Cuenta atrás personalizada (Flexbox responsive en una línea) */
@@ -79,6 +114,18 @@ CHAMPIONS_CSS = """
 
     /* Adaptación específica para móviles (pantallas estrechas) */
     @media (max-width: 480px) {
+        .champions-header-container {
+            gap: 8px;
+        }
+        .app-title-line {
+            font-size: 1.25rem !important;
+            letter-spacing: 1px !important;
+        }
+        .title-ball {
+            width: 24px;
+            height: 24px;
+        }
+
         .countdown-container {
             gap: 6px;
         }
@@ -316,10 +363,10 @@ def ejecutar_sorteo_champions(eqs):
 # --- CARGAR RECURSOS EN BASE64 ---
 balon_b64 = obtener_imagen_base64(BALON_PATH)
 if balon_b64:
-  img_title = f'<img src="{balon_b64}" style="width: 38px; height: 38px; vertical-align: middle; margin: 0 10px;" />'
+  ball_tag = f'<img src="{balon_b64}" class="title-ball" />'
   img_anim = f'<img src="{balon_b64}" style="width: 35px; height: 35px;" />'
 else:
-  img_title = "⚽"
+  ball_tag = '<span style="font-size: 30px;">⚽</span>'
   img_anim = "⚽"
 
 logo_b64 = obtener_imagen_base64(CHAMPIONS_LOGO_PATH)
@@ -330,8 +377,19 @@ else:
 
 # --- VISTA DE LA APLICACIÓN ---
 st.markdown(logo_tag, unsafe_allow_html=True)
+
+# Título estructurado mediante contenedores Flexbox separados para balones y texto
 st.markdown(
-    f"<h1>{img_title} SORTEO CHAMPIONS MANDINGUERA 26/27 {img_title}</h1>",
+    f"""
+    <div class="champions-header-container">
+        {ball_tag}
+        <div class="title-texts-wrapper">
+            <div class="app-title-line">SORTEO CHAMPIONS</div>
+            <div class="app-title-line">MANDINGUERA 26/27</div>
+        </div>
+        {ball_tag}
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 st.write("")

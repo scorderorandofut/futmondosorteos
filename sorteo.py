@@ -37,21 +37,67 @@ CHAMPIONS_CSS = """
         text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
-    /* Estilo para la cuenta atrás (Metrics) */
-    [data-testid="stMetricValue"] {
-        color: #00e5ff !important;
-        font-size: 3.5rem !important;
-        font-weight: 900 !important;
-        text-shadow: 0px 0px 15px rgba(0, 229, 255, 0.6);
-        text-align: center;
+    /* Cuenta atrás personalizada (Flexbox responsive en una línea) */
+    .countdown-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin: 20px 0;
     }
-    [data-testid="stMetricLabel"] {
+    .countdown-box {
+        background: rgba(0, 15, 40, 0.85);
+        border: 1px solid rgba(0, 229, 255, 0.3);
+        border-radius: 10px;
+        padding: 12px 18px;
+        text-align: center;
+        min-width: 90px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .countdown-value {
+        color: #00e5ff !important;
+        font-size: 3.2rem;
+        font-weight: 900;
+        text-shadow: 0px 0px 15px rgba(0, 229, 255, 0.6);
+        line-height: 1.1;
+    }
+    .countdown-label {
         color: #b0c4de !important;
         font-weight: 700;
         text-transform: uppercase;
-        font-size: 1.1rem;
+        font-size: 0.85rem;
         letter-spacing: 1px;
-        text-align: center;
+        margin-top: 5px;
+    }
+    .countdown-separator {
+        color: #00e5ff;
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-shadow: 0px 0px 10px rgba(0, 229, 255, 0.6);
+        margin-top: -15px;
+    }
+
+    /* Adaptación específica para móviles (pantallas estrechas) */
+    @media (max-width: 480px) {
+        .countdown-container {
+            gap: 6px;
+        }
+        .countdown-box {
+            padding: 8px 10px;
+            min-width: 65px;
+            border-radius: 8px;
+        }
+        .countdown-value {
+            font-size: 1.8rem;
+        }
+        .countdown-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+        }
+        .countdown-separator {
+            font-size: 1.5rem;
+            margin-top: -10px;
+        }
     }
 
     /* Contenedor general de columnas */
@@ -101,10 +147,10 @@ CHAMPIONS_LOGO_PATH = ASSETS_DIR / "Champions.png"
 
 EQUIPOS = [
     {
-        "nombre": "AL-LARIK-APAPA",
-        "manager": "Ale",
+        "nombre": "BASS-T-NATION UNITED",
+        "manager": "Noya",
         "bombo": 1,
-        "teamid": "5b699f437f9f7e021a9f71b4",
+        "teamid": "5f5612b297bff0563e446c9f",
     },
     {
         "nombre": "APOEL BARCELÓ C.F.",
@@ -113,16 +159,16 @@ EQUIPOS = [
         "teamid": "66aff83db42d2f289215c3a0",
     },
     {
-        "nombre": "BASS-T-NATION UNITED",
-        "manager": "Noya",
+        "nombre": "AL-LARIK-APAPA",
+        "manager": "Ale",
         "bombo": 1,
-        "teamid": "5f5612b297bff0563e446c9f",
+        "teamid": "5b699f437f9f7e021a9f71b4",
     },
     {
-        "nombre": "AC PONIENTE",
-        "manager": "Nando",
+        "nombre": "OLYMPIQUE DE MARMÀSELLA",
+        "manager": "Salva",
         "bombo": 2,
-        "teamid": "5b61c6e32bfc27e41987c9b1",
+        "teamid": "6a6c777d9ca13a2cab53c9dd",
     },
     {
         "nombre": "LA CASA DE LA JUVENTUS",
@@ -131,10 +177,16 @@ EQUIPOS = [
         "teamid": "5b5f0e425077cd3775d96f66",
     },
     {
-        "nombre": "OLYMPIQUE DE MARMÀSELLA",
-        "manager": "Salva",
+        "nombre": "AC PONIENTE",
+        "manager": "Nando",
         "bombo": 2,
-        "teamid": "6a6c777d9ca13a2cab53c9dd",
+        "teamid": "5b61c6e32bfc27e41987c9b1",
+    },
+    {
+        "nombre": "RAYO MALAYO",
+        "manager": "Victor",
+        "bombo": 3,
+        "teamid": "5b617d622bfc27e4198654de",
     },
     {
         "nombre": "CSKA LAROPA",
@@ -149,22 +201,16 @@ EQUIPOS = [
         "teamid": "62e7c9fd594e39337f8f5243",
     },
     {
-        "nombre": "RAYO MALAYO",
-        "manager": "Victor",
-        "bombo": 3,
-        "teamid": "5b617d622bfc27e4198654de",
-    },
-    {
-        "nombre": "EMERITA DISGUSTA!",
-        "manager": "Miguel",
-        "bombo": 4,
-        "teamid": "6a6c8a3d3214f32ca53c27d5",
-    },
-    {
         "nombre": "ESTRELLA GALICIA CF",
         "manager": "Francis",
         "bombo": 4,
         "teamid": "689653326d85ec6bdab02609",
+    },
+    {
+        "nombre": "WINE & HORSES",
+        "manager": "Jose",
+        "bombo": 4,
+        "teamid": "5b757e0520eda94909ef8326",
     },
     {
         "nombre": "MACCABI DE LEVANTÁ",
@@ -173,10 +219,10 @@ EQUIPOS = [
         "teamid": "6898cb62c4de884fb3611bd7",
     },
     {
-        "nombre": "WINE & HORSES",
-        "manager": "Jose",
+        "nombre": "EMERITA DISGUSTA!",
+        "manager": "Miguel",
         "bombo": 4,
-        "teamid": "5b757e0520eda94909ef8326",
+        "teamid": "6a6c8a3d3214f32ca53c27d5",
     },
 ]
 
@@ -285,7 +331,7 @@ else:
 # --- VISTA DE LA APLICACIÓN ---
 st.markdown(logo_tag, unsafe_allow_html=True)
 st.markdown(
-    f"<h1>{img_title} CHAMPIONS MANDINGUERA 26/27 {img_title}</h1>",
+    f"<h1>{img_title} SORTEO CHAMPIONS MANDINGUERA 26/27 {img_title}</h1>",
     unsafe_allow_html=True,
 )
 st.write("")
@@ -294,23 +340,33 @@ st.write("")
 ahora = datetime.now(SPANISH_TZ)
 
 if ahora < TARGET_TIME:
-  st.info(
-      "⏳ El sorteo oficial está programado para el:"
-      f"{TARGET_TIME.strftime('%Y-%m-%d %H:%M:%S')}"
-  )
-  st.write("---")
-
-  # Cuenta atrás en tiempo real exacta
+  # Cuenta atrás en tiempo real exacta (en una sola línea adaptable)
   tiempo_restante = TARGET_TIME - ahora
-  horas, resto = divmod(int(tiempo_restante.total_seconds()), 3600)
+  total_segundos = max(0, int(tiempo_restante.total_seconds()))
+  horas, resto = divmod(total_segundos, 3600)
   minutos, segundos = divmod(resto, 60)
-  dias, horas = divmod(horas, 24)
 
-  col1, col2, col3, col4 = st.columns(4)
-  col1.metric("Días", dias)
-  col2.metric("Horas", horas)
-  col3.metric("Minutos", minutos)
-  col4.metric("Segundos", segundos)
+  st.markdown(
+      f"""
+      <div class="countdown-container">
+          <div class="countdown-box">
+              <div class="countdown-value">{horas:02d}</div>
+              <div class="countdown-label">Horas</div>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-box">
+              <div class="countdown-value">{minutos:02d}</div>
+              <div class="countdown-label">Minutos</div>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-box">
+              <div class="countdown-value">{segundos:02d}</div>
+              <div class="countdown-label">Segundos</div>
+          </div>
+      </div>
+      """,
+      unsafe_allow_html=True,
+  )
 
   st.write("---")
   st.markdown("<h2>📋 Composición de los Bombos</h2>", unsafe_allow_html=True)

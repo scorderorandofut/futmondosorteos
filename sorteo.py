@@ -296,7 +296,7 @@ ahora = datetime.now(SPANISH_TZ)
 if ahora < TARGET_TIME:
   st.info(
       "⏳ El sorteo oficial está programado para el:"
-      f" **{TARGET_TIME.strftime('%Y-%m-%d %H:%M:%S')} **"
+      f"{TARGET_TIME.strftime('%Y-%m-%d %H:%M:%S')}"
   )
   st.write("---")
 

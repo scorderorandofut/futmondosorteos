@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import base64
 import os
 from pathlib import Path
@@ -172,7 +173,7 @@ EQUIPOS = [
         "teamid": "6898cb62c4de884fb3611bd7",
     },
     {
-        "nombre": "WINE & HORSE",
+        "nombre": "WINE & HORSES",
         "manager": "Jose",
         "bombo": 4,
         "teamid": "5b757e0520eda94909ef8326",
@@ -198,8 +199,11 @@ def obtener_imagen_base64(path_img):
 
 
 # ==========================================
-# ☁️ FUNCIONES DE NUBE (NPOINT.IO)
+# ☁️ FUNCIONES DE NUBE (NPOINT.IO) Y ZONA HORARIA
 # ==========================================
+SPANISH_TZ = ZoneInfo("Europe/Madrid")
+
+
 def obtener_datos_nube():
   try:
     response = requests.get(NPOINT_URL)
@@ -212,10 +216,12 @@ def obtener_datos_nube():
 
 datos_nube = obtener_datos_nube()
 
-DEFAULT_TARGET_TIME = datetime(2026, 8, 27, 20, 0, 0)
+DEFAULT_TARGET_TIME = datetime(2026, 8, 27, 20, 0, 0, tzinfo=SPANISH_TZ)
 if datos_nube and "target_time" in datos_nube:
   try:
-    TARGET_TIME = datetime.strptime(datos_nube["target_time"], "%Y-%m-%d %H:%M:%S")
+    TARGET_TIME = datetime.strptime(
+        datos_nube["target_time"], "%Y-%m-%d %H:%M:%S"
+    ).replace(tzinfo=SPANISH_TZ)
   except:
     TARGET_TIME = DEFAULT_TARGET_TIME
 else:
@@ -284,16 +290,17 @@ st.markdown(
 )
 st.write("")
 
-ahora = datetime.now()
+# Hora actual sincronizada con la hora oficial de España
+ahora = datetime.now(SPANISH_TZ)
 
 if ahora < TARGET_TIME:
   st.info(
       "⏳ El sorteo oficial está programado para el:"
-      f" **{TARGET_TIME.strftime('%Y-%m-%d %H:%M:%S')}**"
+      f" **{TARGET_TIME.strftime('%Y-%m-%d %H:%M:%S')} **"
   )
   st.write("---")
 
-  # Cuenta atrás en tiempo real (en vivo)
+  # Cuenta atrás en tiempo real exacta
   tiempo_restante = TARGET_TIME - ahora
   horas, resto = divmod(int(tiempo_restante.total_seconds()), 3600)
   minutos, segundos = divmod(resto, 60)
@@ -315,7 +322,6 @@ if ahora < TARGET_TIME:
     bombos[eq["bombo"]].append(eq)
 
 
-  # Función auxiliar para pintar cada tarjeta de bombo de forma limpia
   def render_bombo(b_num, lista_equipos):
     st.markdown(
         f"""

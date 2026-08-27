@@ -92,6 +92,7 @@ BASE_DIR = Path(__file__).parent
 ASSETS_DIR = BASE_DIR / "assets"
 ESCUDOS_DIR = ASSETS_DIR / "escudos"
 BALON_PATH = ASSETS_DIR / "balon.png"
+CHAMPIONS_LOGO_PATH = ASSETS_DIR / "Champions.png"
 
 # ==========================================
 # ⚙️ CONFIGURACIÓN DE EQUIPOS
@@ -188,9 +189,9 @@ def obtener_ruta_escudo(team_id):
   return None
 
 
-def obtener_balon_base64(path_balon):
-  if os.path.exists(path_balon):
-    with open(path_balon, "rb") as f:
+def obtener_imagen_base64(path_img):
+  if os.path.exists(path_img):
+    with open(path_img, "rb") as f:
       encoded = base64.b64encode(f.read()).decode()
     return f"data:image/png;base64,{encoded}"
   return None
@@ -211,7 +212,7 @@ def obtener_datos_nube():
 
 datos_nube = obtener_datos_nube()
 
-DEFAULT_TARGET_TIME = datetime(2026, 6, 1, 20, 0, 0)
+DEFAULT_TARGET_TIME = datetime(2026, 8, 27, 20, 0, 0)
 if datos_nube and "target_time" in datos_nube:
   try:
     TARGET_TIME = datetime.strptime(datos_nube["target_time"], "%Y-%m-%d %H:%M:%S")
@@ -260,8 +261,8 @@ def ejecutar_sorteo_champions(eqs):
     return None
 
 
-# --- CARGAR BALÓN EN BASE64 PARA TÍTULO Y ANIMACIÓN ---
-balon_b64 = obtener_balon_base64(BALON_PATH)
+# --- CARGAR RECURSOS EN BASE64 ---
+balon_b64 = obtener_imagen_base64(BALON_PATH)
 if balon_b64:
   img_title = f'<img src="{balon_b64}" style="width: 38px; height: 38px; vertical-align: middle; margin: 0 10px;" />'
   img_anim = f'<img src="{balon_b64}" style="width: 35px; height: 35px;" />'
@@ -269,7 +270,14 @@ else:
   img_title = "⚽"
   img_anim = "⚽"
 
+logo_b64 = obtener_imagen_base64(CHAMPIONS_LOGO_PATH)
+if logo_b64:
+  logo_tag = f'<div style="text-align: center; margin-bottom: 10px;"><img src="{logo_b64}" style="max-height: 100px; object-fit: contain;" /></div>'
+else:
+  logo_tag = ""
+
 # --- VISTA DE LA APLICACIÓN ---
+st.markdown(logo_tag, unsafe_allow_html=True)
 st.markdown(
     f"<h1>{img_title} CHAMPIONS MANDINGUERA 26/27 {img_title}</h1>",
     unsafe_allow_html=True,
@@ -325,7 +333,6 @@ if ahora < TARGET_TIME:
       if ruta_img:
         with open(ruta_img, "rb") as f:
           img_b64 = base64.b64encode(f.read()).decode()
-        # Escudo más grande (30px)
         escudo_html = f'<img src="data:image/png;base64,{img_b64}" style="width: 30px; height: 30px; object-fit: contain; margin-right: 12px;">'
       else:
         escudo_html = (

@@ -180,7 +180,7 @@ st.markdown(CHAMPIONS_CSS, unsafe_allow_html=True)
 # ==========================================
 # ⚙️ CONFIGURACIÓN DE JSONBIN.IO
 # ==========================================
-JSONBIN_BIN_ID = "6a9154e8da38895dfe1b97f6"  # Ej: "65f1234..."
+JSONBIN_BIN_ID = "6a9155e5f5f4af5e294d311b"  # Ej: "65f1234..."
 JSONBIN_API_KEY = "$2a$10$6I7nVD3OyqopEu07qX3opevvL7qmSu8n3xqC1acoVVrCidjJBIHoK"  # Ej: "$2a$10$..."
 JSONBIN_URL = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
 

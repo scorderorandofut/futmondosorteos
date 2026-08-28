@@ -20,14 +20,12 @@ CHAMPIONS_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
 
-    /* Fondo principal y tipografía general */
     .stApp {
         background: radial-gradient(circle at 50% -20%, #00287a, #000418 80%);
         color: #ffffff;
         font-family: 'Montserrat', sans-serif;
     }
 
-    /* Títulos generales */
     h2, h3 {
         font-family: 'Montserrat', sans-serif;
         text-align: center;
@@ -37,7 +35,6 @@ CHAMPIONS_CSS = """
         text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
-    /* Diseño Flexbox para el título adaptable */
     .champions-header-container {
         display: flex;
         align-items: center;
@@ -70,7 +67,6 @@ CHAMPIONS_CSS = """
         object-fit: contain;
     }
 
-    /* Cuenta atrás personalizada (Flexbox responsive en una línea) */
     .countdown-container {
         display: flex;
         justify-content: center;
@@ -110,59 +106,21 @@ CHAMPIONS_CSS = """
         margin-top: -15px;
     }
 
-    /* Adaptación específica para móviles (pantallas estrechas) */
     @media (max-width: 480px) {
-        .champions-header-container {
-            gap: 8px;
-        }
-        .app-title-line {
-            font-size: 1.25rem !important;
-            letter-spacing: 1px !important;
-        }
-        .title-ball {
-            width: 24px;
-            height: 24px;
-        }
-
-        .countdown-container {
-            gap: 6px;
-        }
-        .countdown-box {
-            padding: 8px 10px;
-            min-width: 65px;
-            border-radius: 8px;
-        }
-        .countdown-value {
-            font-size: 1.8rem;
-        }
-        .countdown-label {
-            font-size: 0.6rem;
-            letter-spacing: 0.5px;
-        }
-        .countdown-separator {
-            font-size: 1.5rem;
-            margin-top: -10px;
-        }
+        .champions-header-container { gap: 8px; }
+        .app-title-line { font-size: 1.25rem !important; letter-spacing: 1px !important; }
+        .title-ball { width: 24px; height: 24px; }
+        .countdown-container { gap: 6px; }
+        .countdown-box { padding: 8px 10px; min-width: 65px; border-radius: 8px; }
+        .countdown-value { font-size: 1.8rem; }
+        .countdown-label { font-size: 0.6rem; letter-spacing: 0.5px; }
+        .countdown-separator { font-size: 1.5rem; margin-top: -10px; }
     }
 
-    /* Contenedor general de columnas */
-    [data-testid="column"] {
-        padding: 5px;
-    }
+    [data-testid="column"] { padding: 5px; }
+    hr { border-top: 1px solid rgba(255, 255, 255, 0.2); }
+    div.stAlert { background-color: rgba(0, 229, 255, 0.1); border: 1px solid #00e5ff; color: white; }
 
-    /* Separadores */
-    hr {
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    /* Alertas de Info/Success */
-    div.stAlert {
-        background-color: rgba(0, 229, 255, 0.1);
-        border: 1px solid #00e5ff;
-        color: white;
-    }
-
-    /* Animación de la lluvia de balones */
     @keyframes drop {
         0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
         100% { transform: translateY(300px) rotate(360deg); opacity: 0; }
@@ -178,7 +136,7 @@ CHAMPIONS_CSS = """
 st.markdown(CHAMPIONS_CSS, unsafe_allow_html=True)
 
 # ==========================================
-# ⚙️ CONFIGURACIÓN DE JSONBIN.IO (Tus credenciales)
+# ⚙️ CONFIGURACIÓN DE JSONBIN.IO
 # ==========================================
 JSONBIN_BIN_ID = "6a9155e5f5f4af5e294d311b"
 JSONBIN_API_KEY = "$2a$10$6I7nVD3OyqopEu07qX3opevvL7qmSu8n3xqC1acoVVrCidjJBIHoK"
@@ -193,7 +151,6 @@ CHAMPIONS_LOGO_PATH = ASSETS_DIR / "Champions.png"
 # ==========================================
 # ⚙️ CONFIGURACIÓN DE EQUIPOS
 # ==========================================
-
 EQUIPOS = [
     {
         "nombre": "BASS-T-NATION UNITED",
@@ -277,475 +234,326 @@ EQUIPOS = [
 
 
 def obtener_ruta_escudo(team_id):
-  if ESCUDOS_DIR.exists():
-    for ext in [".png", ".jpg", ".jpeg", ".webp", ".svg"]:
-      escudo_local = ESCUDOS_DIR / f"{team_id}{ext}"
-      if escudo_local.exists():
-        return str(escudo_local)
-  return None
+    if ESCUDOS_DIR.exists():
+        for ext in [".png", ".jpg", ".jpeg", ".webp", ".svg"]:
+            escudo_local = ESCUDOS_DIR / f"{team_id}{ext}"
+            if escudo_local.exists():
+                return str(escudo_local)
+    return None
 
 
 def obtener_imagen_base64(path_img):
-  if os.path.exists(path_img):
-    with open(path_img, "rb") as f:
-      encoded = base64.b64encode(f.read()).decode()
-    return f"data:image/png;base64,{encoded}"
-  return None
+    if os.path.exists(path_img):
+        with open(path_img, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+        return f"data:image/png;base64,{encoded}"
+    return None
 
 
-# ==========================================
-# ☁️ FUNCIONES DE NUBE (JSONBIN.IO)
-# ==========================================
 SPANISH_TZ = ZoneInfo("Europe/Madrid")
 
 
 def obtener_datos_nube():
-  try:
-    headers = {"X-Master-Key": JSONBIN_API_KEY}
-    response = requests.get(JSONBIN_URL, headers=headers)
-    if response.status_code == 200:
-      return response.json().get("record", {})
-  except Exception as e:
-    print(f"Error al leer de JSONBin: {e}")
-  return {}
+    try:
+        headers = {"X-Master-Key": JSONBIN_API_KEY}
+        response = requests.get(JSONBIN_URL, headers=headers)
+        if response.status_code == 200:
+            return response.json().get("record", {})
+    except Exception as e:
+        print(f"Error al leer de JSONBin: {e}")
+    return {}
 
 
 datos_nube = obtener_datos_nube()
 
 DEFAULT_TARGET_TIME = datetime(2026, 8, 27, 20, 0, 0, tzinfo=SPANISH_TZ)
 if datos_nube and "target_time" in datos_nube:
-  try:
-    TARGET_TIME = datetime.strptime(
-        datos_nube["target_time"], "%Y-%m-%d %H:%M:%S"
-    ).replace(tzinfo=SPANISH_TZ)
-  except:
-    TARGET_TIME = DEFAULT_TARGET_TIME
+    try:
+        TARGET_TIME = datetime.strptime(
+            datos_nube["target_time"], "%Y-%m-%d %H:%M:%S"
+        ).replace(tzinfo=SPANISH_TZ)
+    except:
+        TARGET_TIME = DEFAULT_TARGET_TIME
 else:
-  TARGET_TIME = DEFAULT_TARGET_TIME
+    TARGET_TIME = DEFAULT_TARGET_TIME
 
 
 def guardar_seed_nube(seed_val):
-  try:
-    payload = {
-        "target_time": TARGET_TIME.strftime("%Y-%m-%d %H:%M:%S"),
-        "seed": seed_val,
-        "drawed": 1,
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "X-Master-Key": JSONBIN_API_KEY,
-    }
-    response = requests.put(JSONBIN_URL, json=payload, headers=headers)
-    if response.status_code not in [200, 201]:
-      print(f"Error al guardar semilla: {response.text}")
-  except Exception as e:
-    print(f"Excepción al guardar semilla en JSONBin: {e}")
+    try:
+        payload = {
+            "target_time": TARGET_TIME.strftime("%Y-%m-%d %H:%M:%S"),
+            "seed": seed_val,
+            "drawed": 1,
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "X-Master-Key": JSONBIN_API_KEY,
+        }
+        requests.put(JSONBIN_URL, json=payload, headers=headers)
+    except Exception as e:
+        print(f"Excepción al guardar semilla: {e}")
 
 
 def ejecutar_sorteo_champions(eqs):
-  bombos = {1: [], 2: [], 3: [], 4: []}
-  for e in eqs:
-    bombos[e["bombo"]].append(e)
-
-  for b in bombos:
-    random.shuffle(bombos[b])
-
-  grupos = {"Grupo A": [], "Grupo B": [], "Grupo C": []}
-
-  try:
-    for b in [1, 2, 3]:
-      grupos["Grupo A"].append(bombos[b][0])
-      grupos["Grupo B"].append(bombos[b][1])
-      grupos["Grupo C"].append(bombos[b][2])
-
-    grupos["Grupo A"].append(bombos[4][0])
-    grupos["Grupo B"].append(bombos[4][1])
-    grupos["Grupo C"].append(bombos[4][2])
-    grupos["Grupo C"].append(bombos[4][3])
-
-    return grupos
-  except IndexError:
-    return None
+    bombos = {1: [], 2: [], 3: [], 4: []}
+    for e in eqs:
+        bombos[e["bombo"]].append(e)
+    for b in bombos:
+        random.shuffle(bombos[b])
+    grupos = {"GRUPO A": [], "GRUPO B": [], "GRUPO C": []}
+    try:
+        for b in [1, 2, 3]:
+            grupos["GRUPO A"].append(bombos[b][0])
+            grupos["GRUPO B"].append(bombos[b][1])
+            grupos["GRUPO C"].append(bombos[b][2])
+        grupos["GRUPO A"].append(bombos[4][0])
+        grupos["GRUPO B"].append(bombos[4][1])
+        grupos["GRUPO C"].append(bombos[4][2])
+        grupos["GRUPO C"].append(bombos[4][3])
+        return grupos
+    except IndexError:
+        return None
 
 
 def generar_jornadas_grupo_ab(equipos):
-  """Grupos A y B: 4 equipos, ida y vuelta en modo espejo inverso (J4 repite J3, J5 repite J2, J6 repite J1 con campos cambiados)."""
-  l = list(equipos)
-  n = len(l)
-  jornadas = []
-  teams = l[:]
-  for r in range(n - 1):
-    jornada_partidos = []
-    for i in range(n // 2):
-      t1 = teams[i]
-      t2 = teams[n - 1 - i]
-      jornada_partidos.append((t1, t2))
-    jornadas.append(jornada_partidos)
-    teams = [teams[0]] + [teams[-1]] + teams[1:-1]
-
-  # Vuelta en espejo inverso (iniciando por la última jornada de la ida para que J6 sea la vuelta de J1)
-  jornadas_vuelta = [[(t2, t1) for (t1, t2) in j] for j in reversed(jornadas)]
-  return jornadas + jornadas_vuelta
+    l = list(equipos)
+    n = len(l)
+    jornadas = []
+    teams = l[:]
+    for r in range(n - 1):
+        jornada_partidos = []
+        for i in range(n // 2):
+            t1 = teams[i]
+            t2 = teams[n - 1 - i]
+            jornada_partidos.append((t1, t2))
+        jornadas.append(jornada_partidos)
+        teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+    jornadas_vuelta = [[(t2, t1) for (t1, t2) in j] for j in reversed(jornadas)]
+    return jornadas + jornadas_vuelta
 
 
 def generar_jornadas_grupo_c(equipos):
-  """Grupo C: 5 equipos, liguilla a una sola vuelta (J1-J5) + eliminatoria J6 (1º vs 4º, 2º vs 3º)."""
-  l = list(equipos)
-  l_dummy = l + [None]  # Equipo fantasma para descansos
-  n = len(l_dummy)
-  jornadas = []
-  teams = l_dummy[:]
-
-  # Jornadas 1 a 5 (Liguilla a una sola vuelta)
-  for r in range(n - 1):
-    jornada_partidos = []
-    for i in range(n // 2):
-      t1 = teams[i]
-      t2 = teams[n - 1 - i]
-      if t1 is not None and t2 is not None:
-        jornada_partidos.append((t1, t2))
-    jornadas.append(jornada_partidos)
-    teams = [teams[0]] + [teams[-1]] + teams[1:-1]
-
-  # Jornada 6: Eliminatoria directa (1º vs 4º y 2º vs 3º)
-  jornada_6 = [
-      ({"nombre": "1º Grupo C"}, {"nombre": "4º Grupo C"}),
-      ({"nombre": "2º Grupo C"}, {"nombre": "3º Grupo C"}),
-  ]
-  jornadas.append(jornada_6)
-
-  return jornadas
+    l = list(equipos)
+    l_dummy = l + [None]
+    n = len(l_dummy)
+    jornadas = []
+    teams = l_dummy[:]
+    for r in range(n - 1):
+        jornada_partidos = []
+        for i in range(n // 2):
+            t1 = teams[i]
+            t2 = teams[n - 1 - i]
+            if t1 is not None and t2 is not None:
+                jornada_partidos.append((t1, t2))
+        jornadas.append(jornada_partidos)
+        teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+    jornada_6 = [
+        ({"nombre": "1º GRUPO C"}, {"nombre": "4º GRUPO C"}),
+        ({"nombre": "2º GRUPO C"}, {"nombre": "3º GRUPO C"}),
+    ]
+    jornadas.append(jornada_6)
+    return jornadas
 
 
-# --- CARGAR RECURSOS EN BASE64 ---
+# --- RECURSOS EN BASE64 ---
 balon_b64 = obtener_imagen_base64(BALON_PATH)
 if balon_b64:
-  ball_tag = f'<img src="{balon_b64}" class="title-ball" />'
-  img_anim = f'<img src="{balon_b64}" style="width: 35px; height: 35px;" />'
+    ball_tag = f'<img src="{balon_b64}" class="title-ball" />'
+    img_anim = f'<img src="{balon_b64}" style="width: 35px; height: 35px;" />'
 else:
-  ball_tag = '<span style="font-size: 30px;">⚽</span>'
-  img_anim = "⚽"
+    ball_tag = '<span style="font-size: 30px;">⚽</span>'
+    img_anim = "⚽"
 
 logo_b64 = obtener_imagen_base64(CHAMPIONS_LOGO_PATH)
 if logo_b64:
-  logo_tag = f'<div style="text-align: center; margin-bottom: 10px;"><img src="{logo_b64}" style="max-height: 100px; object-fit: contain;" /></div>'
+    logo_tag = f'<div style="text-align: center; margin-bottom: 10px;"><img src="{logo_b64}" style="max-height: 100px; object-fit: contain;" /></div>'
 else:
-  logo_tag = ""
+    logo_tag = ""
 
-# --- VISTA DE LA APLICACIÓN ---
-st.markdown(logo_tag, unsafe_allow_html=True)
+if logo_tag:
+    st.markdown(logo_tag, unsafe_allow_html=True)
 
-st.markdown(
-    f"""
-    <div class="champions-header-container">
-        {ball_tag}
-        <div class="title-texts-wrapper">
-            <div class="app-title-line">SORTEO CHAMPIONS</div>
-            <div class="app-title-line">MANDINGUERA 26/27</div>
-        </div>
-        {ball_tag}
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+header_html = f'<div class="champions-header-container">{ball_tag}<div class="title-texts-wrapper"><div class="app-title-line">SORTEO CHAMPIONS</div><div class="app-title-line">MANDINGUERA 26/27</div></div>{ball_tag}</div>'
+st.markdown(header_html, unsafe_allow_html=True)
 st.write("")
 
-# Hora actual sincronizada con la hora oficial de España
 ahora = datetime.now(SPANISH_TZ)
 
 if ahora < TARGET_TIME:
-  # Cuenta atrás en tiempo real exacta
-  tiempo_restante = TARGET_TIME - ahora
-  total_segundos = max(0, int(tiempo_restante.total_seconds()))
-  horas, resto = divmod(total_segundos, 3600)
-  minutos, segundos = divmod(resto, 60)
+    tiempo_restante = TARGET_TIME - ahora
+    total_segundos = max(0, int(tiempo_restante.total_seconds()))
+    horas, resto = divmod(total_segundos, 3600)
+    minutos, segundos = divmod(resto, 60)
 
-  st.markdown(
-      f"""
-      <div class="countdown-container">
-          <div class="countdown-box">
-              <div class="countdown-value">{horas:02d}</div>
-              <div class="countdown-label">Horas</div>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-box">
-              <div class="countdown-value">{minutos:02d}</div>
-              <div class="countdown-label">Minutos</div>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-box">
-              <div class="countdown-value">{segundos:02d}</div>
-              <div class="countdown-label">Segundos</div>
-          </div>
-      </div>
-      """,
-      unsafe_allow_html=True,
-  )
+    countdown_html = f'<div class="countdown-container"><div class="countdown-box"><div class="countdown-value">{horas:02d}</div><div class="countdown-label">Horas</div></div><div class="countdown-separator">:</div><div class="countdown-box"><div class="countdown-value">{minutos:02d}</div><div class="countdown-label">Minutos</div></div><div class="countdown-separator">:</div><div class="countdown-box"><div class="countdown-value">{segundos:02d}</div><div class="countdown-label">Segundos</div></div></div>'
+    st.markdown(countdown_html, unsafe_allow_html=True)
 
-  st.write("---")
-  st.markdown("<h2>📋 Composición de los Bombos</h2>", unsafe_allow_html=True)
-  st.write("")
-
-  bombos = {1: [], 2: [], 3: [], 4: []}
-  for eq in EQUIPOS:
-    bombos[eq["bombo"]].append(eq)
-
-
-  def render_bombo(b_num, lista_equipos):
-    st.markdown(
-        f"""
-        <div style="background: rgba(0, 15, 40, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-            <div style="background: linear-gradient(90deg, #00287a, #0045bc); padding: 10px; text-align: center; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; color: #ffffff; border-bottom: 2px solid #00e5ff;">
-                BOMBO {b_num}
-            </div>
-            <div style="padding: 10px;">
-    """,
-        unsafe_allow_html=True,
-    )
-
-    for m in lista_equipos:
-      ruta_img = obtener_ruta_escudo(m["teamid"])
-      if ruta_img:
-        with open(ruta_img, "rb") as f:
-          img_b64 = base64.b64encode(f.read()).decode()
-        escudo_html = f'<img src="data:image/png;base64,{img_b64}" style="width: 30px; height: 30px; object-fit: contain; margin-right: 12px;">'
-      else:
-        escudo_html = (
-            '<span style="font-size: 20px; margin-right: 12px;">🛡️</span>'
-        )
-
-      st.markdown(
-          f"""
-          <div style="display: flex; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 1rem;">
-              {escudo_html}
-              <span style="color: #ffffff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{m['nombre']}">{m['nombre']}</span>
-          </div>
-          """,
-          unsafe_allow_html=True,
-      )
-
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-
-  row1_col1, row1_col2 = st.columns(2)
-  with row1_col1:
-    render_bombo(1, bombos[1])
-  with row1_col2:
-    render_bombo(2, bombos[2])
-
-  row2_col1, row2_col2 = st.columns(2)
-  with row2_col1:
-    render_bombo(3, bombos[3])
-  with row2_col2:
-    render_bombo(4, bombos[4])
-
-  time.sleep(1)
-  st.rerun()
-
-else:
-  st.success("🎉 ¡El Sorteo ha finalizado! Estos son los grupos oficiales.")
-
-  # 🔒 LÓGICA DE SEMILLA SINCRONIZADA
-  datos_nube_fresco = obtener_datos_nube()
-  drawed_flag = (
-      datos_nube_fresco.get("drawed", 0) if datos_nube_fresco else 0
-  )
-  cloud_seed = (
-      datos_nube_fresco.get("seed", None) if datos_nube_fresco else None
-  )
-
-  if drawed_flag == 1 and cloud_seed is not None:
-    random.seed(int(cloud_seed))
-  else:
-    nueva_seed = random.randint(1, 999999)
-    random.seed(nueva_seed)
-    guardar_seed_nube(nueva_seed)
-
-  # Generamos el sorteo sincronizado
-  resultado_actual = ejecutar_sorteo_champions(EQUIPOS)
-
-  if resultado_actual:
-    st.markdown(
-        f"""
-        <div style="text-align: center; position: relative; height: 60px; overflow: hidden; margin-bottom: 20px;">
-            <span class="falling-ball" style="left: 15%; animation-delay: 0s;">{img_anim}</span>
-            <span class="falling-ball" style="left: 30%; animation-delay: 0.8s;">{img_anim}</span>
-            <span class="falling-ball" style="left: 50%; animation-delay: 0.3s;">{img_anim}</span>
-            <span class="falling-ball" style="left: 70%; animation-delay: 1.2s;">{img_anim}</span>
-            <span class="falling-ball" style="left: 85%; animation-delay: 0.5s;">{img_anim}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Visualización de los grupos
-    cols = st.columns(3)
-    for i, (grupo, miembros) in enumerate(resultado_actual.items()):
-      with cols[i]:
-        st.markdown(
-            f"""
-            <div style="background: rgba(0, 15, 40, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-                <div style="background: linear-gradient(90deg, #00287a, #0045bc); padding: 10px; text-align: center; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; color: #ffffff; border-bottom: 2px solid #00e5ff;">
-                    🏆 {grupo}
-                </div>
-                <div style="padding: 8px;">
-        """,
-            unsafe_allow_html=True,
-        )
-
-        for idx, m in enumerate(miembros, 1):
-          ruta_img = obtener_ruta_escudo(m["teamid"])
-          if ruta_img:
-            with open(ruta_img, "rb") as f:
-              img_b64 = base64.b64encode(f.read()).decode()
-            escudo_html = f'<img src="data:image/png;base64,{img_b64}" style="width: 26px; height: 26px; object-fit: contain; margin-right: 10px;">'
-          else:
-            escudo_html = (
-                '<span style="font-size: 18px; margin-right: 10px;">🛡️</span>'
-            )
-
-          st.markdown(
-              f"""
-              <div style="display: flex; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">
-                  <span style="color: #00e5ff; font-weight: bold; width: 18px; text-align: center; margin-right: 5px;">{idx}</span>
-                  {escudo_html}
-                  <span style="color: #ffffff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{m['nombre']}</span>
-              </div>
-              """,
-              unsafe_allow_html=True,
-          )
-
-        st.markdown("</div></div>", unsafe_allow_html=True)
-
-    # ==========================================
-    # 📅 CALENDARIO DE ENFRENTAMIENTOS
-    # ==========================================
     st.write("---")
-    st.markdown(
-        "<h2>📅 Calendario de Enfrentamientos</h2>", unsafe_allow_html=True
-    )
+    st.markdown("<h2>📋 Composición de los Bombos</h2>", unsafe_allow_html=True)
     st.write("")
 
-    # Generar jornadas aplicando las normas específicas de cada grupo
-    jornadas_por_grupo = {}
-    for nombre, miembros in resultado_actual.items():
-      if nombre in ["Grupo A", "Grupo B"]:
-        jornadas_por_grupo[nombre] = generar_jornadas_grupo_ab(miembros)
-      elif nombre == "Grupo C":
-        jornadas_por_grupo[nombre] = generar_jornadas_grupo_c(miembros)
+    bombos = {1: [], 2: [], 3: [], 4: []}
+    for eq in EQUIPOS:
+        bombos[eq["bombo"]].append(eq)
 
-    max_jornadas = max(len(j) for j in jornadas_por_grupo.values())
 
-    # Mostrar todas las jornadas de manera continua en una sola vista con columnas para cada grupo
-    for j_idx in range(max_jornadas):
-      st.markdown(
-          f"""
-          <div style="background: rgba(0, 15, 40, 0.75); border: 1px solid rgba(0, 229, 255, 0.25); border-radius: 10px; padding: 12px 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-              <div style="color: #00e5ff; font-weight: 900; font-size: 1.1rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; text-align: center; border-bottom: 1px solid rgba(0, 229, 255, 0.3); padding-bottom: 6px;">
-                  Jornada {j_idx + 1}
-              </div>
-      """,
-          unsafe_allow_html=True,
-      )
+    def render_bombo(b_num, lista_equipos):
+        equipos_html = ""
+        for m in lista_equipos:
+            ruta_img = obtener_ruta_escudo(m["teamid"])
+            if ruta_img:
+                with open(ruta_img, "rb") as f:
+                    img_b64 = base64.b64encode(f.read()).decode()
+                escudo_html = f'<img src="data:image/png;base64,{img_b64}" style="width: 30px; height: 30px; object-fit: contain; margin-right: 12px;">'
+            else:
+                escudo_html = (
+                    '<span style="font-size: 20px; margin-right: 12px;">🛡️</span>'
+                )
 
-      cols_j = st.columns(3)
-      for col_idx, (nombre_grupo, miembros) in enumerate(
-          resultado_actual.items()
-      ):
-        jornadas_g = jornadas_por_grupo[nombre_grupo]
-        with cols_j[col_idx]:
-          st.markdown(
-              f'<div style="color: #b0c4de; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-align: center; text-transform: uppercase;">{nombre_grupo}</div>',
-              unsafe_allow_html=True,
-          )
+            equipos_html += f'<div style="display: flex; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 1rem;">{escudo_html}<span style="color: #ffffff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{m["nombre"]}">{m["nombre"]}</span></div>'
 
-          if j_idx < len(jornadas_g):
-            partidos = jornadas_g[j_idx]
-            for t1, t2 in partidos:
-              # Obtener escudo o icono para t1
-              t1_id = t1.get("teamid")
-              if t1_id:
-                ruta_img1 = obtener_ruta_escudo(t1_id)
-                if ruta_img1:
-                  with open(ruta_img1, "rb") as f:
-                    t1_b64 = base64.b64encode(f.read()).decode()
-                  t1_escudo = f'<img src="data:image/png;base64,{t1_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-right: 6px; vertical-align: middle;">'
+        bombo_html = f'<div style="background: rgba(0, 15, 40, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"><div style="background: linear-gradient(90deg, #00287a, #0045bc); padding: 10px; text-align: center; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; color: #ffffff; border-bottom: 2px solid #00e5ff;">BOMBO {b_num}</div><div style="padding: 10px;">{equipos_html}</div></div>'
+        st.markdown(bombo_html, unsafe_allow_html=True)
+
+
+    row1_col1, row1_col2 = st.columns(2)
+    with row1_col1:
+        render_bombo(1, bombos[1])
+    with row1_col2:
+        render_bombo(2, bombos[2])
+
+    row2_col1, row2_col2 = st.columns(2)
+    with row2_col1:
+        render_bombo(3, bombos[3])
+    with row2_col2:
+        render_bombo(4, bombos[4])
+
+    time.sleep(1)
+    st.rerun()
+
+else:
+    st.success("🎉 ¡El Sorteo ha finalizado! Estos son los grupos oficiales.")
+
+    datos_nube_fresco = obtener_datos_nube()
+    drawed_flag = (
+        datos_nube_fresco.get("drawed", 0) if datos_nube_fresco else 0
+    )
+    cloud_seed = (
+        datos_nube_fresco.get("seed", None) if datos_nube_fresco else None
+    )
+
+    if drawed_flag == 1 and cloud_seed is not None:
+        random.seed(int(cloud_seed))
+    else:
+        nueva_seed = random.randint(1, 999999)
+        random.seed(nueva_seed)
+        guardar_seed_nube(nueva_seed)
+
+    resultado_actual = ejecutar_sorteo_champions(EQUIPOS)
+
+    if resultado_actual:
+        anim_html = f'<div style="text-align: center; position: relative; height: 60px; overflow: hidden; margin-bottom: 20px;"><span class="falling-ball" style="left: 15%; animation-delay: 0s;">{img_anim}</span><span class="falling-ball" style="left: 30%; animation-delay: 0.8s;">{img_anim}</span><span class="falling-ball" style="left: 50%; animation-delay: 0.3s;">{img_anim}</span><span class="falling-ball" style="left: 70%; animation-delay: 1.2s;">{img_anim}</span><span class="falling-ball" style="left: 85%; animation-delay: 0.5s;">{img_anim}</span></div>'
+        st.markdown(anim_html, unsafe_allow_html=True)
+
+        cols = st.columns(3)
+        for i, (grupo, miembros) in enumerate(resultado_actual.items()):
+            with cols[i]:
+                equipos_html = ""
+                for idx, m in enumerate(miembros, 1):
+                    ruta_img = obtener_ruta_escudo(m["teamid"])
+                    if ruta_img:
+                        with open(ruta_img, "rb") as f:
+                            img_b64 = base64.b64encode(f.read()).decode()
+                        escudo_html = f'<img src="data:image/png;base64,{img_b64}" style="width: 26px; height: 26px; object-fit: contain; margin-right: 10px;">'
+                    else:
+                        escudo_html = '<span style="font-size: 18px; margin-right: 10px;">🛡️</span>'
+
+                    equipos_html += f'<div style="display: flex; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;"><span style="color: #00e5ff; font-weight: bold; width: 18px; text-align: center; margin-right: 5px;">{idx}</span>{escudo_html}<span style="color: #ffffff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{m["nombre"]}</span></div>'
+
+                grupo_html = f'<div style="background: rgba(0, 15, 40, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"><div style="background: linear-gradient(90deg, #00287a, #0045bc); padding: 10px; text-align: center; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; color: #ffffff; border-bottom: 2px solid #00e5ff;">🏆 {grupo}</div><div style="padding: 4px 8px 8px 8px;">{equipos_html}</div></div>'
+                st.markdown(grupo_html, unsafe_allow_html=True)
+
+        st.write("---")
+        st.markdown(
+            "<h2>📅 Calendario de Enfrentamientos</h2>", unsafe_allow_html=True
+        )
+        st.write("")
+
+        jornadas_por_grupo = {}
+        for nombre, miembros in resultado_actual.items():
+            if nombre in ["GRUPO A", "GRUPO B"]:
+                jornadas_por_grupo[nombre] = generar_jornadas_grupo_ab(miembros)
+            elif nombre == "GRUPO C":
+                jornadas_por_grupo[nombre] = generar_jornadas_grupo_c(miembros)
+
+        max_jornadas = max(len(j) for j in jornadas_por_grupo.values())
+
+        for j_idx in range(max_jornadas):
+            groups_html_content = ""
+            for nombre_grupo, miembros in resultado_actual.items():
+                jornadas_g = jornadas_por_grupo[nombre_grupo]
+                if j_idx < len(jornadas_g):
+                    partidos = jornadas_g[j_idx]
+                    partidos_html = ""
+                    for t1, t2 in partidos:
+                        t1_id = t1.get("teamid")
+                        if t1_id:
+                            ruta_img1 = obtener_ruta_escudo(t1_id)
+                            if ruta_img1:
+                                with open(ruta_img1, "rb") as f:
+                                    t1_b64 = base64.b64encode(f.read()).decode()
+                                t1_escudo = f'<img src="data:image/png;base64,{t1_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-right: 6px; vertical-align: middle;">'
+                            else:
+                                t1_escudo = '<span style="font-size: 14px; margin-right: 6px;">🛡️</span>'
+                        else:
+                            t1_escudo = '<span style="font-size: 14px; margin-right: 6px;">⭐</span>'
+
+                        t2_id = t2.get("teamid")
+                        if t2_id:
+                            ruta_img2 = obtener_ruta_escudo(t2_id)
+                            if ruta_img2:
+                                with open(ruta_img2, "rb") as f:
+                                    t2_b64 = base64.b64encode(f.read()).decode()
+                                t2_escudo = f'<img src="data:image/png;base64,{t2_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-left: 6px; vertical-align: middle;">'
+                            else:
+                                t2_escudo = '<span style="font-size: 14px; margin-left: 6px;">🛡️</span>'
+                        else:
+                            t2_escudo = '<span style="font-size: 14px; margin-left: 6px;">⭐</span>'
+
+                        partidos_html += f'<div style="font-size: 0.85rem; padding: 6px 8px; margin-bottom: 6px; background: rgba(0,0,0,0.35); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #00e5ff;"><div style="display: flex; align-items: center; width: 44%; overflow: hidden;">{t1_escudo}<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;" title="{t1["nombre"]}">{t1["nombre"]}</span></div><span style="color: #00e5ff; font-weight: bold; width: 12%; text-align: center;">VS</span><div style="display: flex; align-items: center; justify-content: flex-end; width: 44%; overflow: hidden;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff; text-align: right;" title="{t2["nombre"]}">{t2["nombre"]}</span>{t2_escudo}</div></div>'
+
+                    descansa_html = ""
+                    if nombre_grupo == "GRUPO C" and j_idx < 5:
+                        equipos_jugando = set()
+                        for t1, t2 in partidos:
+                            equipos_jugando.add(t1["nombre"])
+                            equipos_jugando.add(t2["nombre"])
+                        equipo_descansa = [
+                            m
+                            for m in miembros
+                            if m["nombre"] not in equipos_jugando
+                        ]
+                        if equipo_descansa:
+                            desc = equipo_descansa[0]
+                            desc_id = desc.get("teamid")
+                            desc_escudo = "💤"
+                            if desc_id:
+                                ruta_desc = obtener_ruta_escudo(desc_id)
+                                if ruta_desc:
+                                    with open(ruta_desc, "rb") as f:
+                                        desc_b64 = base64.b64encode(
+                                            f.read()
+                                        ).decode()
+                                    desc_escudo = f'<img src="data:image/png;base64,{desc_b64}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 4px;">'
+
+                            descansa_html = f'<div style="font-size: 0.8rem; color: #b0c4de; background: rgba(0,229,255,0.06); border: 1px dashed rgba(0,229,255,0.25); border-radius: 6px; padding: 4px 6px; margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Descansa: {desc["nombre"]}">{desc_escudo} <b>Descansa:</b> {desc["nombre"]}</div>'
+
+                    group_content = f"{partidos_html}{descansa_html}"
                 else:
-                  t1_escudo = (
-                      '<span style="font-size: 14px; margin-right: 6px;">🛡️</span>'
-                  )
-              else:
-                t1_escudo = (
-                    '<span style="font-size: 14px; margin-right: 6px;">⭐</span>'
-                )
+                    group_content = '<div style="font-size: 0.85rem; color: #888; text-align: center; font-style: italic; padding: 6px;">Sin partido</div>'
 
-              # Obtener escudo o icono para t2
-              t2_id = t2.get("teamid")
-              if t2_id:
-                ruta_img2 = obtener_ruta_escudo(t2_id)
-                if ruta_img2:
-                  with open(ruta_img2, "rb") as f:
-                    t2_b64 = base64.b64encode(f.read()).decode()
-                  t2_escudo = f'<img src="data:image/png;base64,{t2_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-left: 6px; vertical-align: middle;">'
-                else:
-                  t2_escudo = (
-                      '<span style="font-size: 14px; margin-left: 6px;">🛡️</span>'
-                  )
-              else:
-                t2_escudo = (
-                    '<span style="font-size: 14px; margin-left: 6px;">⭐</span>'
-                )
+                # Sin caja individual de grupo, manteniendo solo el texto del grupo y su contenido limpio
+                groups_html_content += f'<div style="flex: 1; min-width: 280px; padding: 5px;"><div style="color: #00e5ff; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">{nombre_grupo}</div>{group_content}</div>'
 
-              st.markdown(
-                  f"""
-                  <div style="font-size: 0.85rem; padding: 6px 8px; margin-bottom: 6px; background: rgba(0,0,0,0.35); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #00e5ff;">
-                      <div style="display: flex; align-items: center; width: 44%; overflow: hidden;">
-                          {t1_escudo}
-                          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;" title="{t1['nombre']}">{t1['nombre']}</span>
-                      </div>
-                      <span style="color: #00e5ff; font-weight: bold; width: 12%; text-align: center;">VS</span>
-                      <div style="display: flex; align-items: center; justify-content: flex-end; width: 44%; overflow: hidden;">
-                          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff; text-align: right;" title="{t2['nombre']}">{t2['nombre']}</span>
-                          {t2_escudo}
-                      </div>
-                  </div>
-                  """,
-                  unsafe_allow_html=True,
-              )
-
-            # Si es el Grupo C y estamos en las primeras 5 jornadas, mostrar quién descansa
-            if nombre_grupo == "Grupo C" and j_idx < 5:
-              equipos_jugando = set()
-              for t1, t2 in partidos:
-                equipos_jugando.add(t1["nombre"])
-                equipos_jugando.add(t2["nombre"])
-              equipo_descansa = [
-                  m for m in miembros if m["nombre"] not in equipos_jugando
-              ]
-              if equipo_descansa:
-                desc = equipo_descansa[0]
-                desc_id = desc.get("teamid")
-                desc_escudo = "💤"
-                if desc_id:
-                  ruta_desc = obtener_ruta_escudo(desc_id)
-                  if ruta_desc:
-                    with open(ruta_desc, "rb") as f:
-                      desc_b64 = base64.b64encode(f.read()).decode()
-                    desc_escudo = f'<img src="data:image/png;base64,{desc_b64}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 4px;">'
-
-                st.markdown(
-                    f"""
-                    <div style="font-size: 0.8rem; color: #b0c4de; background: rgba(0,229,255,0.06); border: 1px dashed rgba(0,229,255,0.25); border-radius: 6px; padding: 4px 6px; margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Descansa: {desc['nombre']}">
-                        {desc_escudo} <b>Descansa:</b> {desc['nombre']}
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-          else:
-            st.markdown(
-                '<div style="font-size: 0.85rem; color: #888; text-align: center; font-style: italic; padding: 6px;">Sin partido</div>',
-                unsafe_allow_html=True,
-            )
-
-      st.markdown("</div>", unsafe_allow_html=True)
+            jornada_master_html = f'<div style="background: rgba(0, 15, 40, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"><div style="background: linear-gradient(90deg, #00287a, #0045bc); padding: 12px; text-align: center; font-weight: 900; font-size: 1.15rem; letter-spacing: 1px; color: #ffffff; border-bottom: 2px solid #00e5ff; text-transform: uppercase;">Jornada {j_idx + 1}</div><div style="padding: 15px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">{groups_html_content}</div></div>'
+            st.markdown(jornada_master_html, unsafe_allow_html=True)

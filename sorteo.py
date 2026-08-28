@@ -157,78 +157,91 @@ EQUIPOS = [
         "manager": "Noya",
         "bombo": 1,
         "teamid": "5f5612b297bff0563e446c9f",
+        "caps": "BTN",
     },
     {
         "nombre": "APOEL BARCELÓ C.F.",
         "manager": "Juanma",
         "bombo": 1,
         "teamid": "66aff83db42d2f289215c3a0",
+        "caps": "APO",
     },
     {
         "nombre": "AL-LARIK-APAPA",
         "manager": "Ale",
         "bombo": 1,
         "teamid": "5b699f437f9f7e021a9f71b4",
+        "caps": "ALP",
     },
     {
         "nombre": "OLYMPIQUE DE MARMÀSELLA",
         "manager": "Salva",
         "bombo": 2,
         "teamid": "6a6c777d9ca13a2cab53c9dd",
+        "caps": "OLM",
     },
     {
         "nombre": "LA CASA DE LA JUVENTUS",
         "manager": "Sergio",
         "bombo": 2,
         "teamid": "5b5f0e425077cd3775d96f66",
+        "caps": "JUV",
     },
     {
         "nombre": "AC PONIENTE",
         "manager": "Nando",
         "bombo": 2,
         "teamid": "5b61c6e32bfc27e41987c9b1",
+        "caps": "ACP",
     },
     {
         "nombre": "RAYO MALAYO",
         "manager": "Victor",
         "bombo": 3,
         "teamid": "5b617d622bfc27e4198654de",
+        "caps": "RAY",
     },
     {
         "nombre": "CSKA LAROPA",
         "manager": "Gonzalo",
         "bombo": 3,
         "teamid": "68975fc2ca08f61db236301b",
+        "caps": "CSK",
     },
     {
         "nombre": "LA MÉRIDA GUSTO FC",
         "manager": "Javi",
         "bombo": 3,
         "teamid": "62e7c9fd594e39337f8f5243",
+        "caps": "LMG",
     },
     {
         "nombre": "ESTRELLA GALICIA CF",
         "manager": "Francis",
         "bombo": 4,
         "teamid": "689653326d85ec6bdab02609",
+        "caps": "ESC",
     },
     {
         "nombre": "WINE & HORSES",
         "manager": "Jose",
         "bombo": 4,
         "teamid": "5b757e0520eda94909ef8326",
+        "caps": "W&H",
     },
     {
         "nombre": "MACCABI DE LEVANTÁ",
         "manager": "Alfon",
         "bombo": 4,
         "teamid": "6898cb62c4de884fb3611bd7",
+        "caps": "MCL",
     },
     {
         "nombre": "EMERITA DISGUSTA!",
         "manager": "Miguel",
         "bombo": 4,
         "teamid": "6a6c8a3d3214f32ca53c27d5",
+        "caps": "EMD",
     },
 ]
 
@@ -348,8 +361,14 @@ def generar_jornadas_grupo_c(equipos):
         jornadas.append(jornada_partidos)
         teams = [teams[0]] + [teams[-1]] + teams[1:-1]
     jornada_6 = [
-        ({"nombre": "1º GRUPO C"}, {"nombre": "4º GRUPO C"}),
-        ({"nombre": "2º GRUPO C"}, {"nombre": "3º GRUPO C"}),
+        (
+            {"nombre": "1º GRUPO C", "caps": "1º GRUPO C"},
+            {"nombre": "4º GRUPO C", "caps": "4º GRUPO C"},
+        ),
+        (
+            {"nombre": "2º GRUPO C", "caps": "2º GRUPO C"},
+            {"nombre": "3º GRUPO C", "caps": "3º GRUPO C"},
+        ),
     ]
     jornadas.append(jornada_6)
     return jornadas
@@ -432,8 +451,6 @@ if ahora < TARGET_TIME:
     st.rerun()
 
 else:
-    st.success("🎉 ¡El Sorteo ha finalizado! Estos son los grupos oficiales.")
-
     datos_nube_fresco = obtener_datos_nube()
     drawed_flag = (
         datos_nube_fresco.get("drawed", 0) if datos_nube_fresco else 0
@@ -497,30 +514,36 @@ else:
                     partidos_html = ""
                     for t1, t2 in partidos:
                         t1_id = t1.get("teamid")
+                        t1_caps = t1.get("caps", t1.get("nombre", ""))
+                        t1_nombre = t1.get("nombre", t1_caps)
                         if t1_id:
                             ruta_img1 = obtener_ruta_escudo(t1_id)
                             if ruta_img1:
                                 with open(ruta_img1, "rb") as f:
                                     t1_b64 = base64.b64encode(f.read()).decode()
-                                t1_escudo = f'<img src="data:image/png;base64,{t1_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-right: 6px; vertical-align: middle;">'
+                                t1_escudo = f'<img src="data:image/png;base64,{t1_b64}" style="width: 60px; height: 60px; object-fit: contain; margin-right: 12px; vertical-align: middle;">'
                             else:
-                                t1_escudo = '<span style="font-size: 14px; margin-right: 6px;">🛡️</span>'
+                                t1_escudo = '<span style="font-size: 30px; margin-right: 12px;">🛡️</span>'
                         else:
-                            t1_escudo = '<span style="font-size: 14px; margin-right: 6px;">⭐</span>'
+                            # Estrella tamaño 60px alineada
+                            t1_escudo = '<span style="font-size: 60px; margin-right: 12px; vertical-align: middle; line-height: 1;">⭐</span>'
 
                         t2_id = t2.get("teamid")
+                        t2_caps = t2.get("caps", t2.get("nombre", ""))
+                        t2_nombre = t2.get("nombre", t2_caps)
                         if t2_id:
                             ruta_img2 = obtener_ruta_escudo(t2_id)
                             if ruta_img2:
                                 with open(ruta_img2, "rb") as f:
                                     t2_b64 = base64.b64encode(f.read()).decode()
-                                t2_escudo = f'<img src="data:image/png;base64,{t2_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-left: 6px; vertical-align: middle;">'
+                                t2_escudo = f'<img src="data:image/png;base64,{t2_b64}" style="width: 60px; height: 60px; object-fit: contain; margin-left: 12px; vertical-align: middle;">'
                             else:
-                                t2_escudo = '<span style="font-size: 14px; margin-left: 6px;">🛡️</span>'
+                                t2_escudo = '<span style="font-size: 30px; margin-left: 12px;">🛡️</span>'
                         else:
-                            t2_escudo = '<span style="font-size: 14px; margin-left: 6px;">⭐</span>'
+                            # Estrella tamaño 60px alineada
+                            t2_escudo = '<span style="font-size: 60px; margin-left: 12px; vertical-align: middle; line-height: 1;">⭐</span>'
 
-                        partidos_html += f'<div style="font-size: 0.85rem; padding: 6px 8px; margin-bottom: 6px; background: rgba(0,0,0,0.35); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #00e5ff;"><div style="display: flex; align-items: center; width: 44%; overflow: hidden;">{t1_escudo}<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;" title="{t1["nombre"]}">{t1["nombre"]}</span></div><span style="color: #00e5ff; font-weight: bold; width: 12%; text-align: center;">VS</span><div style="display: flex; align-items: center; justify-content: flex-end; width: 44%; overflow: hidden;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff; text-align: right;" title="{t2["nombre"]}">{t2["nombre"]}</span>{t2_escudo}</div></div>'
+                        partidos_html += f'<div style="font-size: 1rem; padding: 10px 12px; margin-bottom: 10px; background: rgba(0,0,0,0.35); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #00e5ff;"><div style="display: flex; align-items: center; width: 42%; overflow: hidden;">{t1_escudo}<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff; font-weight: 700;" title="{t1_nombre}">{t1_caps}</span></div><span style="color: #00e5ff; font-weight: bold; width: 16%; text-align: center;">VS</span><div style="display: flex; align-items: center; justify-content: flex-end; width: 42%; overflow: hidden;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff; text-align: right; font-weight: 700;" title="{t2_nombre}">{t2_caps}</span>{t2_escudo}</div></div>'
 
                     descansa_html = ""
                     if nombre_grupo == "GRUPO C" and j_idx < 5:
@@ -536,7 +559,9 @@ else:
                         if equipo_descansa:
                             desc = equipo_descansa[0]
                             desc_id = desc.get("teamid")
-                            desc_escudo = "💤"
+                            desc_caps = desc.get("caps", desc["nombre"])
+                            desc_nombre = desc.get("nombre", desc_caps)
+                            desc_escudo = '<span style="font-size: 24px; margin-left: 8px; vertical-align: middle;">💤</span>'
                             if desc_id:
                                 ruta_desc = obtener_ruta_escudo(desc_id)
                                 if ruta_desc:
@@ -544,15 +569,14 @@ else:
                                         desc_b64 = base64.b64encode(
                                             f.read()
                                         ).decode()
-                                    desc_escudo = f'<img src="data:image/png;base64,{desc_b64}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 4px;">'
+                                    desc_escudo = f'<img src="data:image/png;base64,{desc_b64}" style="width: 40px; height: 40px; object-fit: contain; vertical-align: middle; margin-left: 8px;" title="{desc_nombre}">'
 
-                            descansa_html = f'<div style="font-size: 0.8rem; color: #b0c4de; background: rgba(0,229,255,0.06); border: 1px dashed rgba(0,229,255,0.25); border-radius: 6px; padding: 4px 6px; margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Descansa: {desc["nombre"]}">{desc_escudo} <b>Descansa:</b> {desc["nombre"]}</div>'
+                            descansa_html = f'<div style="font-size: 0.9rem; color: #b0c4de; background: rgba(0,229,255,0.06); border: 1px dashed rgba(0,229,255,0.25); border-radius: 6px; padding: 8px 12px; margin-top: 8px; display: flex; align-items: center; justify-content: center;" title="Descansa: {desc_nombre}"><b>Descansa:</b>&nbsp;<span style="color: #ffffff; font-weight: 700; margin-left: 4px;" title="{desc_nombre}">{desc_caps}</span>{desc_escudo}</div>'
 
                     group_content = f"{partidos_html}{descansa_html}"
                 else:
                     group_content = '<div style="font-size: 0.85rem; color: #888; text-align: center; font-style: italic; padding: 6px;">Sin partido</div>'
 
-                # Sin caja individual de grupo, manteniendo solo el texto del grupo y su contenido limpio
                 groups_html_content += f'<div style="flex: 1; min-width: 280px; padding: 5px;"><div style="color: #00e5ff; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">{nombre_grupo}</div>{group_content}</div>'
 
             jornada_master_html = f'<div style="background: rgba(0, 15, 40, 0.85); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"><div style="background: linear-gradient(90deg, #00287a, #0045bc); padding: 12px; text-align: center; font-weight: 900; font-size: 1.15rem; letter-spacing: 1px; color: #ffffff; border-bottom: 2px solid #00e5ff; text-transform: uppercase;">Jornada {j_idx + 1}</div><div style="padding: 15px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">{groups_html_content}</div></div>'

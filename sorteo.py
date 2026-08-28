@@ -178,10 +178,10 @@ CHAMPIONS_CSS = """
 st.markdown(CHAMPIONS_CSS, unsafe_allow_html=True)
 
 # ==========================================
-# ⚙️ CONFIGURACIÓN DE JSONBIN.IO
+# ⚙️ CONFIGURACIÓN DE JSONBIN.IO (Tus credenciales)
 # ==========================================
-JSONBIN_BIN_ID = "6a9155e5f5f4af5e294d311b"  # Ej: "65f1234..."
-JSONBIN_API_KEY = "$2a$10$6I7nVD3OyqopEu07qX3opevvL7qmSu8n3xqC1acoVVrCidjJBIHoK"  # Ej: "$2a$10$..."
+JSONBIN_BIN_ID = "6a9155e5f5f4af5e294d311b"
+JSONBIN_API_KEY = "$2a$10$6I7nVD3OyqopEu07qX3opevvL7qmSu8n3xqC1acoVVrCidjJBIHoK"
 JSONBIN_URL = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
 
 BASE_DIR = Path(__file__).parent
@@ -304,7 +304,6 @@ def obtener_datos_nube():
     headers = {"X-Master-Key": JSONBIN_API_KEY}
     response = requests.get(JSONBIN_URL, headers=headers)
     if response.status_code == 200:
-      # JSONBin v3 encapsula la información dentro de la clave "record"
       return response.json().get("record", {})
   except Exception as e:
     print(f"Error al leer de JSONBin: {e}")
@@ -326,7 +325,6 @@ else:
 
 
 def guardar_seed_nube(seed_val):
-  """Guarda la semilla y el estado en JSONBin.io usando la API Key"""
   try:
     payload = {
         "target_time": TARGET_TIME.strftime("%Y-%m-%d %H:%M:%S"),
@@ -368,6 +366,55 @@ def ejecutar_sorteo_champions(eqs):
     return grupos
   except IndexError:
     return None
+
+
+def generar_jornadas_grupo_ab(equipos):
+  """Grupos A y B: 4 equipos, ida y vuelta en modo espejo inverso (J4 repite J3, J5 repite J2, J6 repite J1 con campos cambiados)."""
+  l = list(equipos)
+  n = len(l)
+  jornadas = []
+  teams = l[:]
+  for r in range(n - 1):
+    jornada_partidos = []
+    for i in range(n // 2):
+      t1 = teams[i]
+      t2 = teams[n - 1 - i]
+      jornada_partidos.append((t1, t2))
+    jornadas.append(jornada_partidos)
+    teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+
+  # Vuelta en espejo inverso (iniciando por la última jornada de la ida para que J6 sea la vuelta de J1)
+  jornadas_vuelta = [[(t2, t1) for (t1, t2) in j] for j in reversed(jornadas)]
+  return jornadas + jornadas_vuelta
+
+
+def generar_jornadas_grupo_c(equipos):
+  """Grupo C: 5 equipos, liguilla a una sola vuelta (J1-J5) + eliminatoria J6 (1º vs 4º, 2º vs 3º)."""
+  l = list(equipos)
+  l_dummy = l + [None]  # Equipo fantasma para descansos
+  n = len(l_dummy)
+  jornadas = []
+  teams = l_dummy[:]
+
+  # Jornadas 1 a 5 (Liguilla a una sola vuelta)
+  for r in range(n - 1):
+    jornada_partidos = []
+    for i in range(n // 2):
+      t1 = teams[i]
+      t2 = teams[n - 1 - i]
+      if t1 is not None and t2 is not None:
+        jornada_partidos.append((t1, t2))
+    jornadas.append(jornada_partidos)
+    teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+
+  # Jornada 6: Eliminatoria directa (1º vs 4º y 2º vs 3º)
+  jornada_6 = [
+      ({"nombre": "1º Grupo C"}, {"nombre": "4º Grupo C"}),
+      ({"nombre": "2º Grupo C"}, {"nombre": "3º Grupo C"}),
+  ]
+  jornadas.append(jornada_6)
+
+  return jornadas
 
 
 # --- CARGAR RECURSOS EN BASE64 ---
@@ -439,7 +486,6 @@ if ahora < TARGET_TIME:
   st.markdown("<h2>📋 Composición de los Bombos</h2>", unsafe_allow_html=True)
   st.write("")
 
-  # Organizar equipos por bombo
   bombos = {1: [], 2: [], 3: [], 4: []}
   for eq in EQUIPOS:
     bombos[eq["bombo"]].append(eq)
@@ -481,14 +527,12 @@ if ahora < TARGET_TIME:
     st.markdown("</div></div>", unsafe_allow_html=True)
 
 
-  # Fila 1: Bombo 1 y Bombo 2
   row1_col1, row1_col2 = st.columns(2)
   with row1_col1:
     render_bombo(1, bombos[1])
   with row1_col2:
     render_bombo(2, bombos[2])
 
-  # Fila 2: Bombo 3 y Bombo 4
   row2_col1, row2_col2 = st.columns(2)
   with row2_col1:
     render_bombo(3, bombos[3])
@@ -534,6 +578,7 @@ else:
         unsafe_allow_html=True,
     )
 
+    # Visualización de los grupos
     cols = st.columns(3)
     for i, (grupo, miembros) in enumerate(resultado_actual.items()):
       with cols[i]:
@@ -571,3 +616,136 @@ else:
           )
 
         st.markdown("</div></div>", unsafe_allow_html=True)
+
+    # ==========================================
+    # 📅 CALENDARIO DE ENFRENTAMIENTOS
+    # ==========================================
+    st.write("---")
+    st.markdown(
+        "<h2>📅 Calendario de Enfrentamientos</h2>", unsafe_allow_html=True
+    )
+    st.write("")
+
+    # Generar jornadas aplicando las normas específicas de cada grupo
+    jornadas_por_grupo = {}
+    for nombre, miembros in resultado_actual.items():
+      if nombre in ["Grupo A", "Grupo B"]:
+        jornadas_por_grupo[nombre] = generar_jornadas_grupo_ab(miembros)
+      elif nombre == "Grupo C":
+        jornadas_por_grupo[nombre] = generar_jornadas_grupo_c(miembros)
+
+    max_jornadas = max(len(j) for j in jornadas_por_grupo.values())
+
+    # Mostrar todas las jornadas de manera continua en una sola vista con columnas para cada grupo
+    for j_idx in range(max_jornadas):
+      st.markdown(
+          f"""
+          <div style="background: rgba(0, 15, 40, 0.75); border: 1px solid rgba(0, 229, 255, 0.25); border-radius: 10px; padding: 12px 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+              <div style="color: #00e5ff; font-weight: 900; font-size: 1.1rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; text-align: center; border-bottom: 1px solid rgba(0, 229, 255, 0.3); padding-bottom: 6px;">
+                  Jornada {j_idx + 1}
+              </div>
+      """,
+          unsafe_allow_html=True,
+      )
+
+      cols_j = st.columns(3)
+      for col_idx, (nombre_grupo, miembros) in enumerate(
+          resultado_actual.items()
+      ):
+        jornadas_g = jornadas_por_grupo[nombre_grupo]
+        with cols_j[col_idx]:
+          st.markdown(
+              f'<div style="color: #b0c4de; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-align: center; text-transform: uppercase;">{nombre_grupo}</div>',
+              unsafe_allow_html=True,
+          )
+
+          if j_idx < len(jornadas_g):
+            partidos = jornadas_g[j_idx]
+            for t1, t2 in partidos:
+              # Obtener escudo o icono para t1
+              t1_id = t1.get("teamid")
+              if t1_id:
+                ruta_img1 = obtener_ruta_escudo(t1_id)
+                if ruta_img1:
+                  with open(ruta_img1, "rb") as f:
+                    t1_b64 = base64.b64encode(f.read()).decode()
+                  t1_escudo = f'<img src="data:image/png;base64,{t1_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-right: 6px; vertical-align: middle;">'
+                else:
+                  t1_escudo = (
+                      '<span style="font-size: 14px; margin-right: 6px;">🛡️</span>'
+                  )
+              else:
+                t1_escudo = (
+                    '<span style="font-size: 14px; margin-right: 6px;">⭐</span>'
+                )
+
+              # Obtener escudo o icono para t2
+              t2_id = t2.get("teamid")
+              if t2_id:
+                ruta_img2 = obtener_ruta_escudo(t2_id)
+                if ruta_img2:
+                  with open(ruta_img2, "rb") as f:
+                    t2_b64 = base64.b64encode(f.read()).decode()
+                  t2_escudo = f'<img src="data:image/png;base64,{t2_b64}" style="width: 20px; height: 20px; object-fit: contain; margin-left: 6px; vertical-align: middle;">'
+                else:
+                  t2_escudo = (
+                      '<span style="font-size: 14px; margin-left: 6px;">🛡️</span>'
+                  )
+              else:
+                t2_escudo = (
+                    '<span style="font-size: 14px; margin-left: 6px;">⭐</span>'
+                )
+
+              st.markdown(
+                  f"""
+                  <div style="font-size: 0.85rem; padding: 6px 8px; margin-bottom: 6px; background: rgba(0,0,0,0.35); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #00e5ff;">
+                      <div style="display: flex; align-items: center; width: 44%; overflow: hidden;">
+                          {t1_escudo}
+                          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff;" title="{t1['nombre']}">{t1['nombre']}</span>
+                      </div>
+                      <span style="color: #00e5ff; font-weight: bold; width: 12%; text-align: center;">VS</span>
+                      <div style="display: flex; align-items: center; justify-content: flex-end; width: 44%; overflow: hidden;">
+                          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffffff; text-align: right;" title="{t2['nombre']}">{t2['nombre']}</span>
+                          {t2_escudo}
+                      </div>
+                  </div>
+                  """,
+                  unsafe_allow_html=True,
+              )
+
+            # Si es el Grupo C y estamos en las primeras 5 jornadas, mostrar quién descansa
+            if nombre_grupo == "Grupo C" and j_idx < 5:
+              equipos_jugando = set()
+              for t1, t2 in partidos:
+                equipos_jugando.add(t1["nombre"])
+                equipos_jugando.add(t2["nombre"])
+              equipo_descansa = [
+                  m for m in miembros if m["nombre"] not in equipos_jugando
+              ]
+              if equipo_descansa:
+                desc = equipo_descansa[0]
+                desc_id = desc.get("teamid")
+                desc_escudo = "💤"
+                if desc_id:
+                  ruta_desc = obtener_ruta_escudo(desc_id)
+                  if ruta_desc:
+                    with open(ruta_desc, "rb") as f:
+                      desc_b64 = base64.b64encode(f.read()).decode()
+                    desc_escudo = f'<img src="data:image/png;base64,{desc_b64}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 4px;">'
+
+                st.markdown(
+                    f"""
+                    <div style="font-size: 0.8rem; color: #b0c4de; background: rgba(0,229,255,0.06); border: 1px dashed rgba(0,229,255,0.25); border-radius: 6px; padding: 4px 6px; margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Descansa: {desc['nombre']}">
+                        {desc_escudo} <b>Descansa:</b> {desc['nombre']}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+          else:
+            st.markdown(
+                '<div style="font-size: 0.85rem; color: #888; text-align: center; font-style: italic; padding: 6px;">Sin partido</div>',
+                unsafe_allow_html=True,
+            )
+
+      st.markdown("</div>", unsafe_allow_html=True)

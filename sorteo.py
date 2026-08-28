@@ -37,9 +37,7 @@ CHAMPIONS_CSS = """
         text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
-    /* ==========================================
-       ⚽ NUEVO DISEÑO FLEXBOX PARA EL TÍTULO
-       ================================---------- */
+    /* Diseño Flexbox para el título adaptable */
     .champions-header-container {
         display: flex;
         align-items: center;
@@ -179,8 +177,12 @@ CHAMPIONS_CSS = """
 """
 st.markdown(CHAMPIONS_CSS, unsafe_allow_html=True)
 
-# Enlace de tu base de datos remota en npoint.io
-NPOINT_URL = "https://api.npoint.io/8bb91db2ed41d4d64582"
+# ==========================================
+# ⚙️ CONFIGURACIÓN DE JSONBIN.IO
+# ==========================================
+JSONBIN_BIN_ID = "6a9154e8da38895dfe1b97f6"  # Ej: "65f1234..."
+JSONBIN_API_KEY = "$2a$10$6I7nVD3OyqopEu07qX3opevvL7qmSu8n3xqC1acoVVrCidjJBIHoK"  # Ej: "$2a$10$..."
+JSONBIN_URL = f"https://api.jsonbin.io/v3/b/{JSONBIN_BIN_ID}"
 
 BASE_DIR = Path(__file__).parent
 ASSETS_DIR = BASE_DIR / "assets"
@@ -292,19 +294,21 @@ def obtener_imagen_base64(path_img):
 
 
 # ==========================================
-# ☁️ FUNCIONES DE NUBE (NPOINT.IO) Y ZONA HORARIA
+# ☁️ FUNCIONES DE NUBE (JSONBIN.IO)
 # ==========================================
 SPANISH_TZ = ZoneInfo("Europe/Madrid")
 
 
 def obtener_datos_nube():
   try:
-    response = requests.get(NPOINT_URL)
+    headers = {"X-Master-Key": JSONBIN_API_KEY}
+    response = requests.get(JSONBIN_URL, headers=headers)
     if response.status_code == 200:
-      return response.json()
-  except:
-    pass
-  return None
+      # JSONBin v3 encapsula la información dentro de la clave "record"
+      return response.json().get("record", {})
+  except Exception as e:
+    print(f"Error al leer de JSONBin: {e}")
+  return {}
 
 
 datos_nube = obtener_datos_nube()
@@ -321,17 +325,23 @@ else:
   TARGET_TIME = DEFAULT_TARGET_TIME
 
 
-def guardar_resultado_nube(resultado):
+def guardar_seed_nube(seed_val):
+  """Guarda la semilla y el estado en JSONBin.io usando la API Key"""
   try:
     payload = {
         "target_time": TARGET_TIME.strftime("%Y-%m-%d %H:%M:%S"),
-        "equipos": EQUIPOS,
-        "resultado": resultado,
+        "seed": seed_val,
+        "drawed": 1,
     }
-    headers = {"Content-Type": "application/json"}
-    requests.post(NPOINT_URL, json=payload, headers=headers)
+    headers = {
+        "Content-Type": "application/json",
+        "X-Master-Key": JSONBIN_API_KEY,
+    }
+    response = requests.put(JSONBIN_URL, json=payload, headers=headers)
+    if response.status_code not in [200, 201]:
+      print(f"Error al guardar semilla: {response.text}")
   except Exception as e:
-    st.error(f"Error al sincronizar con la nube: {e}")
+    print(f"Excepción al guardar semilla en JSONBin: {e}")
 
 
 def ejecutar_sorteo_champions(eqs):
@@ -378,7 +388,6 @@ else:
 # --- VISTA DE LA APLICACIÓN ---
 st.markdown(logo_tag, unsafe_allow_html=True)
 
-# Título estructurado mediante contenedores Flexbox separados para balones y texto
 st.markdown(
     f"""
     <div class="champions-header-container">
@@ -398,7 +407,7 @@ st.write("")
 ahora = datetime.now(SPANISH_TZ)
 
 if ahora < TARGET_TIME:
-  # Cuenta atrás en tiempo real exacta (en una sola línea adaptable)
+  # Cuenta atrás en tiempo real exacta
   tiempo_restante = TARGET_TIME - ahora
   total_segundos = max(0, int(tiempo_restante.total_seconds()))
   horas, resto = divmod(total_segundos, 3600)
@@ -492,14 +501,24 @@ if ahora < TARGET_TIME:
 else:
   st.success("🎉 ¡El Sorteo ha finalizado! Estos son los grupos oficiales.")
 
-  resultado_actual = datos_nube.get("resultado") if datos_nube else None
+  # 🔒 LÓGICA DE SEMILLA SINCRONIZADA
+  datos_nube_fresco = obtener_datos_nube()
+  drawed_flag = (
+      datos_nube_fresco.get("drawed", 0) if datos_nube_fresco else 0
+  )
+  cloud_seed = (
+      datos_nube_fresco.get("seed", None) if datos_nube_fresco else None
+  )
 
-  if not resultado_actual:
-    resultado_actual = ejecutar_sorteo_champions(EQUIPOS)
-    if resultado_actual:
-      guardar_resultado_nube(resultado_actual)
-    else:
-      st.error("Error al repartir los equipos.")
+  if drawed_flag == 1 and cloud_seed is not None:
+    random.seed(int(cloud_seed))
+  else:
+    nueva_seed = random.randint(1, 999999)
+    random.seed(nueva_seed)
+    guardar_seed_nube(nueva_seed)
+
+  # Generamos el sorteo sincronizado
+  resultado_actual = ejecutar_sorteo_champions(EQUIPOS)
 
   if resultado_actual:
     st.markdown(
